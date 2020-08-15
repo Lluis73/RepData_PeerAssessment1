@@ -10,7 +10,8 @@ output:
 First of all, we unzip and load the file into a data frame and load the dplyr
 package
 
-```{r reading data,echo=TRUE}
+
+```r
 ## Unzipping file
 unzip("activity.zip")
 ## reading file into data frame
@@ -21,17 +22,23 @@ library(dplyr)
 
 Then, we create a new data frame with the total number of steps by day
 
-```{r total number of steps by day,echo=TRUE}
+
+```r
 ## calculating total number of steps by day
 activity_date <- group_by(activity, date)
 act_date_sum <- summarize(activity_date, steps_day = sum(steps))
+```
+
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
 ```
 
 ## What is mean total number of steps taken per day?
 
 We create a histogram with the total number of steps by day
 
-```{r histogram number of steps by day,echo=TRUE}
+
+```r
 ## histogram of total steps by day
 hist(
     act_date_sum$steps_day,
@@ -41,15 +48,25 @@ hist(
 )
 ```
 
+![](PA1_template_files/figure-html/histogram number of steps by day-1.png)<!-- -->
+
 We compute the mean and median of steps taken each day
 
-```{r mean and median of steps,echo=TRUE}
+
+```r
 ## mean and median of the total number of steps taken by day
 summarize(
     act_date_sum,
     mean_steps = mean(steps_day, na.rm = TRUE),
     median_steps = median(steps_day, na.rm = TRUE)
 )
+```
+
+```
+## # A tibble: 1 x 2
+##   mean_steps median_steps
+##        <dbl>        <int>
+## 1     10766.        10765
 ```
 
 We can see that the median and mean are very close (mean = 10766 and
@@ -60,17 +77,23 @@ median = 10765)
 We create a new table for computing the average number of steps taken in each
 interval
 
-```{r average number of steps,echo=TRUE}
+
+```r
 ## computing average number of steps by interval
 activity_int <- group_by(activity, interval)
 act_int_avg <-
     summarize(activity_int, avg_steps = mean(steps, na.rm = TRUE))
 ```
 
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
 we make a time series plot of the 5-minute interval and the average number of 
 steps taken, averaged across all days
 
-```{r plot of average steps,echo=TRUE}
+
+```r
 ## plotting of 5-minute interval and average number of steps
 with(
     act_int_avg,
@@ -78,11 +101,21 @@ with(
 )
 ```
 
+![](PA1_template_files/figure-html/plot of average steps-1.png)<!-- -->
+
 we find the 5-minute interval which contains the maximum number of steps
 
-```{r maximum number of steps,echo=TRUE}
+
+```r
 ## 5-minute interval with the maximum average number of steps
 select(filter(act_int_avg, avg_steps == max(act_int_avg$avg_steps)), interval)
+```
+
+```
+## # A tibble: 1 x 1
+##   interval
+##      <int>
+## 1      835
 ```
 
 We see above taht the interval with the maximum number of steps on average is 
@@ -92,9 +125,14 @@ the interval labelled with the number 835
 
 We compute the total number of missing values in the dataset
 
-```{r total number of missing values,echo=TRUE}
+
+```r
 ## computing total number of missing values
 sum(is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 We create a new dataset with the missing values filled in:
@@ -105,7 +143,8 @@ We create a new dataset with the missing values filled in:
 3. we create a new dataset with the non missing values and the missing values
    filled in
 
-```{r missing data filled in,echo=TRUE}
+
+```r
 ## selecting intervals with missing values (the field steps is not selected)
 activity_missing <-
     select(filter(activity, is.na(steps) == 1), date, interval)
@@ -128,16 +167,22 @@ activity_imp_all <- rbind(activity_not_missing, activity_imp)
 
 we create a new dataset with the total number of steps by day
 
-```{r total number of steps by day missing filled in,echo=TRUE}
+
+```r
 ## calculating total number of steps by day
 activity_imp_date <- group_by(activity_imp_all, date)
 act_date_imp_sum <-
     summarize(activity_imp_date, steps_day = sum(steps))
 ```
 
+```
+## `summarise()` ungrouping output (override with `.groups` argument)
+```
+
 we make a histogram of the total number of steps taken each day
 
-```{r histogram of steps taken each day,echo=TRUE}
+
+```r
 ## histogram of total steps by day
 hist(
     act_date_imp_sum$steps_day,
@@ -147,15 +192,25 @@ hist(
 )
 ```
 
+![](PA1_template_files/figure-html/histogram of steps taken each day-1.png)<!-- -->
+
 we calculate the mean and median total number of steps taken by day
 
-```{r mean and median,echo=TRUE}
+
+```r
 ## mean and median of the total number of steps taken by day
 summarize(
     act_date_imp_sum,
     mean_steps = mean(steps_day, na.rm = TRUE),
     median_steps = median(steps_day, na.rm = TRUE)
 )
+```
+
+```
+## # A tibble: 1 x 2
+##   mean_steps median_steps
+##        <dbl>        <dbl>
+## 1     10766.       10766.
 ```
 
 The mean is the same computed in the beginning and median now is equal to the
@@ -169,7 +224,8 @@ frequence of days with steps near the mean of the distribution
 we create a new factor variable with two levels – “weekday” and “weekend”
 indicating whether a given date is a weekday or weekend day
 
-```{r creation variable weekday,echo=TRUE}
+
+```r
 ## creating variable type of day (weekend, weekday)
 activity_imp_all <-
     mutate(activity_imp_all,
@@ -182,18 +238,24 @@ activity_imp_all <-
 
 we compute the average by interval through weekdays and weekends
 
-```{r average by interval weekdays and weekends,echo=TRUE}
+
+```r
 ## Calculating average by interval through weekdays and weekend
 act_imp_int_week <- group_by(activity_imp_all, interval, tday)
 act_imp_int_tday_avg <-
     summarize(act_imp_int_week, avg_steps = mean(steps, na.rm = TRUE))
 ```
 
+```
+## `summarise()` regrouping output by 'interval' (override with `.groups` argument)
+```
+
 We make a panel plot containing a time series plot of the 5-minute interval
 and the average number of steps taken, averaged across all weekday days or
 weekend days
 
-```{r panel data of weekdays and weekends,echo=TRUE}
+
+```r
 ## loading package ggplot2
 library(ggplot2)
 ##
@@ -201,4 +263,6 @@ g <- ggplot(aes(x = interval, y = avg_steps), data = act_imp_int_tday_avg)
 g <- g + geom_line() + facet_grid(tday ~ .)
 g + labs(title = "Evolution of average number of steps (weekdays/weekends) by 5-minute time interval")
 ```
+
+![](PA1_template_files/figure-html/panel data of weekdays and weekends-1.png)<!-- -->
 
